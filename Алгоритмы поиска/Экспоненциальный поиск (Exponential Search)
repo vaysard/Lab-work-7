@@ -1,0 +1,113 @@
+def _binary_search(arr, target, low, high):
+    """
+    Вспомогательная функция для выполнения двоичного поиска
+    в заданном диапазоне массива.
+    """
+    while low <= high:
+        mid = low + (high - low) // 2  # Избегаем переполнения, если low и high очень велики
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            low = mid + 1
+        else:  # arr[mid] > target
+            high = mid - 1
+    return -1  # Элемент не найден в диапазоне
+
+
+def exponential_search(arr, target):
+    """
+    Реализует алгоритм Экспоненциального поиска для отсортированного массива.
+
+    Принцип работы:
+    1. Проверяется первый элемент массива.
+    2. Если элемент не найден, диапазон увеличивается экспоненциально:
+       1, 2, 4, 8, 16 и т.д., пока не будет найден элемент, больший или равный искомому.
+    3. На найденном диапазоне выполняется бинарный поиск.
+
+    Сложность: O(log n).
+    Эффективен при поиске в очень больших отсортированных массивах
+    с неизвестным размером или частичным доступом.
+
+    Args:
+        arr (list): Отсортированный список чисел, в котором нужно найти target.
+        target: Значение, которое необходимо найти.
+
+    Returns:
+        int: Индекс target, если он найден. В противном случае -1.
+    """
+    n = len(arr)
+
+    # Шаг 1: Проверка на пустой массив
+    if n == 0:
+        return -1
+
+    # Шаг 1: Проверка первого элемента массива
+    if arr[0] == target:
+        return 0
+
+    # Шаг 2: Находим диапазон для бинарного поиска,
+    # увеличивая индекс экспоненциально (1, 2, 4, 8, ...)
+    # Пока текущий элемент меньше или равен искомому и мы в пределах массива.
+    i = 1
+    while i < n and arr[i] <= target:
+        i *= 2
+
+    # Шаг 3: Выполняем двоичный поиск в найденном диапазоне.
+    # Диапазон для двоичного поиска будет [i/2, min(i, n-1)].
+    # i/2 - это предыдущая позиция (где элемент был меньше target).
+    # min(i, n-1) - это верхняя граница, чтобы не выйти за пределы массива.
+    return _binary_search(arr, target, i // 2, min(i, n - 1))
+
+# --- Примеры использования ---
+if __name__ == "__main__":
+    data = [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610]
+    
+    print(f"Массив: {data}")
+
+    # Примеры найденных элементов
+    target1 = 55
+    index1 = exponential_search(data, target1)
+    print(f"Поиск {target1}: Индекс {index1} (Ожидается 10)")
+
+    target2 = 1
+    index2 = exponential_search(data, target2)
+    print(f"Поиск {target2}: Индекс {index2} (Ожидается 1)")
+
+    target3 = 610
+    index3 = exponential_search(data, target3)
+    print(f"Поиск {target3}: Индекс {index3} (Ожидается 15)")
+
+    target_first = 0
+    index_first = exponential_search(data, target_first)
+    print(f"Поиск {target_first}: Индекс {index_first} (Ожидается 0)")
+
+    # Примеры ненайденных элементов
+    target4 = 4
+    index4 = exponential_search(data, target4)
+    print(f"Поиск {target4}: Индекс {index4} (Ожидается -1)")
+
+    target5 = 100
+    index5 = exponential_search(data, target5)
+    print(f"Поиск {target5}: Индекс {index5} (Ожидается -1)")
+
+    target6 = -1
+    index6 = exponential_search(data, target6)
+    print(f"Поиск {target6}: Индекс {index6} (Ожидается -1)")
+
+    target7 = 700
+    index7 = exponential_search(data, target7)
+    print(f"Поиск {target7}: Индекс {index7} (Ожидается -1)")
+
+    empty_data = []
+    target_empty = 5
+    index_empty = exponential_search(empty_data, target_empty)
+    print(f"nПоиск {target_empty} в пустом массиве: Индекс {index_empty} (Ожидается -1)")
+
+    single_element_data = [42]
+    target_single_found = 42
+    target_single_not_found = 10
+    print(f"nМассив: {single_element_data}")
+    index_single_found = exponential_search(single_element_data, target_single_found)
+    print(f"Поиск {target_single_found}: Индекс {index_single_found} (Ожидается 0)")
+    index_single_not_found = exponential_search(single_element_data, target_single_not_found)
+    print(f"Поиск {target_single_not_found}: Индекс {index_single_not_found} (Ожидается -1)")
