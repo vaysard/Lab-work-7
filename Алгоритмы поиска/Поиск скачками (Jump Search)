@@ -1,0 +1,135 @@
+import math
+
+def jump_search(arr, target):
+    """
+    Реализует алгоритм Поиска скачками (Jump Search) для отсортированного массива.
+
+    Принцип работы:
+    1. Массив делится на блоки длиной m=√n.
+    2. Алгоритм "прыгает" вперёд на m элементов, пока не найдёт элемент,
+       который больше или равен искомому (или пока не выйдет за пределы массива).
+    3. Если найденный элемент больше искомого, выполняется линейный поиск
+       в предыдущем блоке (от предыдущей позиции "прыжка" до текущей).
+
+    Args:
+        arr (list): Отсортированный список чисел, в котором нужно найти target.
+        target: Значение, которое необходимо найти.
+
+    Returns:
+        int: Индекс target, если он найден. В противном случае -1.
+    """
+    n = len(arr)
+
+    # Если массив пустой, элемент не найден
+    if n == 0:
+        return -1
+
+    # Шаг 1: Определяем размер блока m (√n)
+    # Используем math.isqrt для целого квадратного корня в Python 3.8+
+    # Для более старых версий можно использовать int(math.sqrt(n))
+    step = int(math.sqrt(n)) 
+    
+    # prev_idx будет указывать на начало текущего блока,
+    # который мы рассматриваем для линейного поиска.
+    prev_idx = 0
+
+    # Шаг 2: Выполняем "прыжки"
+    # Пока текущая позиция (prev_idx) не превышает размер массива,
+    # и элемент в конце текущего "прыжка" меньше искомого.
+    # min(prev_idx + step, n) гарантирует, что мы не выйдем за пределы массива.
+    # arr[min(prev_idx + step, n) - 1] - это последний элемент текущего блока.
+    
+    while prev_idx < n and arr[min(prev_idx + step, n) - 1] < target:
+        # Если мы уже проверили весь массив и не нашли элемент,
+        # или если prev_idx уже перескочил через конец массива.
+        if prev_idx + step >= n:
+            break # Цель находится за пределами массива
+        
+        prev_idx += step
+
+    # Если prev_idx вышел за границы массива, значит target не найден
+    if prev_idx >= n or arr[prev_idx] > target and prev_idx == 0: # Дополнительная проверка на случай, если target меньше arr[0]
+        # Если target меньше первого элемента, и prev_idx все еще 0 после цикла,
+        # или если prev_idx уже вышел за границы
+        return -1
+
+
+    # Шаг 3: Выполняем линейный поиск в найденном блоке
+    # Ищем от prev_idx до min(prev_idx + step, n)
+    current_search_limit = min(prev_idx + step, n)
+    
+    # Если target меньше элемента, с которого начался линейный поиск,
+    # значит он не в этом блоке и не был найден.    if arr[prev_idx] > target: # Это может случиться, если target между двумя блоками
+    return -1              # и arr[prev_idx] - это первый элемент следующего блока.
+
+    for i in range(prev_idx, current_search_limit):
+        if arr[i] == target:
+            return i # Элемент найден
+        
+        # Оптимизация: если текущий элемент больше искомого,
+        # а массив отсортирован, значит искомого элемента нет.
+        if arr[i] > target:
+            return -1
+
+    return -1 # Элемент не найден в массиве
+
+# --- Примеры использования ---
+if __name__ == "__main__":
+    data = [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610]
+    
+    print(f"Массив: {data}")
+
+    # Примеры найденных элементов
+    target1 = 55
+    index1 = jump_search(data, target1)
+    print(f"Поиск {target1}: Индекс {index1} (Ожидается 10)") # Ожидается 10
+
+    target2 = 1
+    index2 = jump_search(data, target2)
+    print(f"Поиск {target2}: Индекс {index2} (Ожидается 1 или 2, в зависимости от логики. Здесь 1)") # Ожидается 1
+
+    target3 = 610
+    index3 = jump_search(data, target3)
+    print(f"Поиск {target3}: Индекс {index3} (Ожидается 15)") # Ожидается 15
+
+    # Примеры ненайденных элементов
+    target4 = 4
+    index4 = jump_search(data, target4)
+    print(f"Поиск {target4}: Индекс {index4} (Ожидается -1)") # Ожидается -1
+
+    target5 = 100
+    index5 = jump_search(data, target5)
+    print(f"Поиск {target5}: Индекс {index5} (Ожидается -1)") # Ожидается -1
+
+    target6 = -1
+    index6 = jump_search(data, target6)
+    print(f"Поиск {target6}: Индекс {index6} (Ожидается -1)") # Ожидается -1 (т.к. -1 < 0)
+
+    target7 = 700
+    index7 = jump_search(data, target7)
+    print(f"Поиск {target7}: Индекс {index7} (Ожидается -1)") # Ожидается -1
+
+    empty_data = []
+    target_empty = 5
+    index_empty = jump_search(empty_data, target_empty)
+    print(f"\nПоиск {target_empty} в пустом массиве: Индекс {index_empty} (Ожидается -1)")
+
+    single_element_data = [42]
+    target_single_found = 42
+    target_single_not_found = 10
+    print(f"\nМассив: {single_element_data}")
+    index_single_found = jump_search(single_element_data, target_single_found)
+    print(f"Поиск {target_single_found}: Индекс {index_single_found} (Ожидается 0)")
+    index_single_not_found = jump_search(single_element_data, target_single_not_found)
+    print(f"Поиск {target_single_not_found}: Индекс {index_single_not_found} (Ожидается -1)")
+
+    # Массив с дубликатами
+    data_duplicates = [10, 20, 20, 30, 40, 40, 40, 50]
+    target_duplicate = 20
+    print(f"\nМассив с дубликатами: {data_duplicates}")
+    index_duplicate = jump_search(data_duplicates, target_duplicate)
+    print(f"Поиск {target_duplicate}: Индекс {index_duplicate} (Ожидается 1)")
+    
+    target_duplicate_middle = 40
+    index_duplicate_middle = jump_search(data_duplicates, target_duplicate_middle)
+    print(f"Поиск {target_duplicate_middle}: Индекс {index_duplicate_middle} (Ожидается 4)")
