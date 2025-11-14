@@ -1,0 +1,70 @@
+def bucket_sort(arr, bucket_size=10):
+    """
+    Сортирует массив с использованием алгоритма блочной сортировки (bucket sort).
+
+    Args:
+        arr: Список чисел для сортировки.
+        bucket_size: Размер каждого "бакета" (корзины).
+                     Этот параметр влияет на эффективность.
+
+    Returns:
+        Отсортированный список.
+    """
+    if not arr:
+        return []
+
+    # 1. Определяем количество корзин (бакетов)
+    max_val = max(arr)
+    min_val = min(arr)
+    # Рассчитываем диапазон для каждой корзины
+    range_val = (max_val - min_val) / bucket_size
+    num_buckets = int(range_val) + 1
+
+    # Создаем пустые корзины
+    buckets = [[] for _ in range(num_buckets)]
+
+    # 2. Каждый элемент помещается в корзину согласно функции распределения
+    for num in arr:
+        # Вычисляем индекс корзины для данного числа
+        # Учитываем, что min_val может быть не 0
+        bucket_index = int((num - min_val) / (max_val - min_val) * (num_buckets - 1))
+        buckets[bucket_index].append(num)
+
+    # 3. Содержимое каждой корзины сортируется индивидуально
+    # Здесь используется простая сортировка вставками, но можно использовать любую другую.
+    sorted_arr = []
+    for bucket in buckets:
+        bucket.sort()  # Используем встроенную сортировку Python для простоты
+        sorted_arr.extend(bucket)
+
+    return sorted_arr
+
+# Пример использования:
+if __name__ == "__main__":
+    data = [29, 25, 3, 49, 9, 37, 21, 43]
+    print(f"Исходный массив: {data}")
+    sorted_data = bucket_sort(data, bucket_size=5) # Пример с 5 корзинами
+    print(f"Отсортированный массив (bucket_size=5): {sorted_data}")
+
+    data2 = [0.897, 0.565, 0.656, 0.1234, 0.665, 0.3434]
+    print(f"\nИсходный массив (дробные числа): {data2}")
+    sorted_data2 = bucket_sort(data2, bucket_size=10) # Пример с 10 корзинами
+    print(f"Отсортированный массив (bucket_size=10): {sorted_data2}")
+
+    data3 = [1, 5, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1]
+    print(f"\nИсходный массив: {data3}")
+    sorted_data3 = bucket_sort(data3, bucket_size=3) # Пример с 3 корзинами
+    print(f"Отсортированный массив (bucket_size=3): {sorted_data3}")
+
+    empty_data = []
+    print(f"\nИсходный пустой массив: {empty_data}")
+    sorted_empty_data = bucket_sort(empty_data)
+    print(f"Отсортированный пустой массив: {sorted_empty_data}")
+
+
+
+
+
+
+
+    
